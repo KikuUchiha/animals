@@ -1,3 +1,28 @@
+import mysql.connector
+
+class Database:
+    def __init__(self, host, user, password, database):
+        self.connection = mysql.connector.connect(
+            host=golf.beget.com,
+            user=slava2012z_edgar,
+            password=iAmGay007!,
+            database=slava2012z_edgar
+        )
+        self.cursor = self.connection.cursor()
+
+    def execute_query(self, query, params=None):
+        self.cursor.execute(query, params or ())
+        self.connection.commit()
+
+    def fetch_all(self, query, params=None):
+        self.cursor.execute(query, params or ())
+        return self.cursor.fetchall()
+
+    def close(self):
+        self.cursor.close()
+        self.connection.close()
+
+
 class Animal:
     def __init__(self, name, birthdate):
         self.name = name
