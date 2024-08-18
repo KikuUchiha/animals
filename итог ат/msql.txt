@@ -1,0 +1,78 @@
+kiku@kiku-VirtualBox:~$ mysql -u root -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 13
+Server version: 8.0.39-0ubuntu0.24.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2024, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> SELECT User, Host FROM mysql.user;
++------------------+-----------+
+| User             | Host      |
++------------------+-----------+
+| debian-sys-maint | localhost |
+| mysql.infoschema | localhost |
+| mysql.session    | localhost |
+| mysql.sys        | localhost |
+| root             | localhost |
++------------------+-----------+
+5 rows in set (0,00 sec)
+
+mysql> CREATE DATABASE Друзья_человека;
+Query OK, 1 row affected (0,01 sec)
+
+mysql> USE Друзья_человека;
+Database changed
+mysql> CREATE TABLE Домашние_Животные (
+    ->     id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     имя VARCHAR(255),
+    ->     команды TEXT,
+    ->     дата_рождения DATE
+    -> );
+Query OK, 0 rows affected (0,02 sec)
+
+mysql> 
+mysql> CREATE TABLE Вьючные_Животные (
+    ->     id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     имя VARCHAR(255),
+    ->     команды TEXT,
+    ->     дата_рождения DATE
+    -> );
+Query OK, 0 rows affected (0,02 sec)
+
+mysql> INSERT INTO Домашние_Животные (имя, команды, дата_рождения) VALUES ('собака', 'сидеть, лежать', '2022-01-01');
+Query OK, 1 row affected (0,03 sec)
+
+mysql> INSERT INTO Вьючные_Животные (имя, команды, дата_рождения) VALUES ('лошадь', 'идти, остановиться', '2021-06-15');
+Query OK, 1 row affected (0,00 sec)
+
+mysql> DELETE FROM Вьючные_Животные WHERE имя='верблюд';
+Query OK, 0 rows affected (0,00 sec)
+
+mysql> 
+mysql> CREATE TABLE Лошади_И_Ослы AS
+    -> SELECT * FROM Вьючные_Животные WHERE имя='лошадь' OR имя='осел';
+Query OK, 1 row affected (0,03 sec)
+Records: 1  Duplicates: 0  Warnings: 0
+
+mysql> CREATE TABLE Молодые_Животные AS
+    -> SELECT *, TIMESTAMPDIFF(MONTH, дата_рождения, CURDATE()) AS возраст_в_месяцах
+    -> FROM Домашние_Животные
+    -> WHERE TIMESTAMPDIFF(YEAR, дата_рождения, CURDATE()) BETWEEN 1 AND 3;
+Query OK, 1 row affected (0,04 sec)
+Records: 1  Duplicates: 0  Warnings: 0
+
+mysql> CREATE TABLE Все_Животные AS
+    -> SELECT * FROM Домашние_Животные
+    -> UNION ALL
+    -> SELECT * FROM Вьючные_Животные;
+Query OK, 2 rows affected (0,02 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> 
