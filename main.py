@@ -108,3 +108,76 @@ class Counter:
         if self.count == 0:
             raise Exception("Counter resource not used correctly. No animals added.")
 
+
+
+def print_menu():
+    print("1. Завести новое животное")
+    print("2. Увидеть список команд животного")
+    print("3. Обучить животное новым командам")
+    print("4. Выход")
+
+def main():
+    db = Database(
+        host="localhost",
+        user="root",
+        password="Kiku1234*",
+        database="Друзья_человека",
+        use_pure=True,
+        ssl_disabled=True
+    )
+    
+    registry = Registry(db)
+    registry.load_animals()
+
+    while True:
+        print_menu()
+        choice = input("Выберите опцию: ")
+        
+        if choice == "1":
+            with Counter() as counter:
+                animal_type = input("Введите тип животного (домашнее/вьючное): ").strip().lower()
+                name = input("Введите имя животного: ").strip()
+                birthdate = input("Введите дату рождения (YYYY-MM-DD): ").strip()
+                
+                if animal_type == "домашнее":
+                    commands = input("Введите команды (через запятую): ").strip()
+                    new_animal = Pet(name=name, birthdate=birthdate, commands=commands)
+                elif animal_type == "вьючное":
+                    load_capacity = input("Введите грузоподъемность: ").strip()
+                    new_animal = PackAnimal(name=name, birthdate=birthdate, load_capacity=load_capacity)
+                else:
+                    print("Неизвестный тип животного")
+                    continue
+                
+                registry.add_animal(new_animal)
+                counter.add()
+                print(f"Добавлено {counter.get_count()} животных.")
+        
+        elif choice == "2":
+            animal_name = input("Введите имя животного: ").strip()
+            registry.show_commands(animal_name)
+        
+        elif choice == "3":
+            animal_name = input("Введите имя животного: ").strip()
+            for animal in registry.animals:
+                if isinstance(animal, Pet) and animal.name == animal_name:
+                    new_commands = input("Введите новые команды (через запятую): ").strip()
+                    animal.add_commands(new_commands)
+                    query = "UPDATE Домашние_Животные SET команды=%s WHERE имя=%s"
+                    db.execute_query(query, (animal.commands, animal.name))
+                    print(f"Команды обновлены: {animal.commands}")
+                    break
+            else:
+                print("Животное не найдено или это не домашнее животное.")
+        
+        elif choice == "4":
+            break
+        
+        else:
+            print("Неверный выбор. Пожалуйста, попробуйте снова.")
+    
+    db.close()
+
+if __name__ == "__main__":
+    main()
+
